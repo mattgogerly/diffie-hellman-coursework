@@ -43,14 +43,11 @@ public class MyClient {
 			
 			Random rand = new Random();
 			b = BigInteger.valueOf(rand.nextInt(20) + 1);
-			System.out.println("Value of b is: " + b);
 			
 			BigInteger y = g.modPow(b, p);
 			ki.calculateKey(y);
 			
 			secretKey = x.modPow(b, p);
-			
-			System.out.println("Client's key is: " + secretKey);
 			
 			if (!ki.checkSameSecret(secretKey)) {
 				throw new Exception("The private keys do not match, secure connection not established!");

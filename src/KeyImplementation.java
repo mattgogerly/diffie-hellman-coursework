@@ -17,11 +17,8 @@ public class KeyImplementation implements KeyInterface {
 	public BigInteger calculateX() throws RemoteException {
 		Random rand = new Random();
 		a = rand.nextInt(20) + 1;
-		System.out.println("Value of a is: " + a);
 		
 		BigInteger x =  g.modPow(BigInteger.valueOf(a), p);
-		System.out.println("Value of x is: " + x);
-		
 		return x;
 	}
 	
@@ -35,17 +32,16 @@ public class KeyImplementation implements KeyInterface {
 
 	public BigInteger calculateKey(BigInteger y) throws RemoteException {
 		secretKey = y.modPow(BigInteger.valueOf(a), p);
-		System.out.println("Server's private key is: " + secretKey);
-		
 		return secretKey;
 	}
 
 	public boolean checkSameSecret(BigInteger key) throws RemoteException {
 		if (secretKey.equals(key)) {
+			System.out.println("Secure connection established with client!");
 			return true;
-		} else {
-			return false;
 		}
+		
+		return false;
 	}
 	
 }

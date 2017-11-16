@@ -1,10 +1,7 @@
 import java.math.BigInteger;
-import java.rmi.RemoteException;
 import java.rmi.registry.LocateRegistry;
 import java.rmi.registry.Registry;
 import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.Collections;
 import java.util.List;
 import java.util.Random;
 import java.util.Scanner;
@@ -36,7 +33,7 @@ public class MyClient {
 		try {
 			cipherText = ki.getCiphertext(uid);
 			System.out.println(cipherText);
-			//decryptCiphertext();
+			decryptCiphertext();
 		} catch (Exception e) {
 			System.out.println(e.getMessage());
 		}
@@ -48,6 +45,8 @@ public class MyClient {
 	
 	private boolean establishSecureConnection() {
 		try {
+			System.out.println("Attempting to establish secure connection with the server...");
+			
 			Registry reg = LocateRegistry.getRegistry(serverAddr);
 			ki = (KeyInterface) reg.lookup("Key");
 			

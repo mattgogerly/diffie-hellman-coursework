@@ -10,7 +10,8 @@ public interface KeyInterface extends Remote {
 	
 	public BigInteger calculateX() throws RemoteException;
 	public BigInteger calculateKey(BigInteger y) throws RemoteException;
-	
 	public boolean checkSameSecret(BigInteger key) throws RemoteException;
+	
+	public String getCiphertext(String uid) throws RemoteException;
 	
 }

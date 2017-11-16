@@ -40,12 +40,19 @@ public class KeyImplementation implements KeyInterface {
 
 	public boolean checkSameSecret(BigInteger key) throws RemoteException {
 		if (secretKey.equals(key)) {
+<<<<<<< HEAD
 			System.out.println("Secure connection to client established!");
 			return true;
 		} else {
 			System.out.println("Secure connection to client failed!");
 			return false;
+=======
+			System.out.println("Secure connection established with client!");
+			return true;
+>>>>>>> 2002b3e1ed14bd23ae0d519e8bf493c73a8e88c6
 		}
+		
+		return false;
 	}
 	
 	public String getCiphertext(String uid) {

@@ -15,6 +15,7 @@ public class KeyImplementation implements KeyInterface {
 	
 	public KeyImplementation() throws RemoteException {
 		System.setProperty("java.security.policy", "SecurityPolicy");
+		System.setProperty("java.rmi.server.codebase", "http://users.ecs.soton.ac.uk/tjn1f15/comp2207.jar");
 	}
 	
 	public BigInteger calculateX() throws RemoteException {
@@ -49,9 +50,7 @@ public class KeyImplementation implements KeyInterface {
 	}
 	
 	public String getCiphertext(String uid) {
-		try {
-			System.setProperty("java.rmi.server.codebase", "http://users.ecs.soton.ac.uk/tjn1f15/comp2207.jar");
-			
+		try {			
 			if (System.getSecurityManager() == null) {
 				System.setSecurityManager(new SecurityManager());
 			}

@@ -20,20 +20,20 @@ public class KeyImplementation implements KeyInterface {
 		System.setProperty("java.rmi.server.codebase", "http://users.ecs.soton.ac.uk/tjn1f15/comp2207.jar");
 	}
 	
-	public BigInteger calculateX() throws RemoteException {
-		Random rand = new Random();
-		a = rand.nextInt(20) + 1;
-		
-		BigInteger x =  g.modPow(BigInteger.valueOf(a), p);
-		return x;
-	}
-	
 	public BigInteger getP() throws RemoteException {
 		return p;
 	}
 
 	public BigInteger getG() throws RemoteException {
 		return g;
+	}
+	
+	public BigInteger calculateX() throws RemoteException {
+		Random rand = new Random();
+		a = rand.nextInt(20) + 1;
+		
+		BigInteger x =  g.modPow(BigInteger.valueOf(a), p);
+		return x;
 	}
 
 	public BigInteger calculateKey(BigInteger y) throws RemoteException {
@@ -61,6 +61,7 @@ public class KeyImplementation implements KeyInterface {
 			CiphertextInterface ci = (CiphertextInterface) reg.lookup("CipherRequest");
 			
 			String text = ci.get(uid, secretKey.intValue());
+			System.out.println(text);
 			return text;
 		} catch (Exception e) {
 			e.printStackTrace();

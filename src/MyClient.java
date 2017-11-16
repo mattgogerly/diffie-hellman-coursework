@@ -36,7 +36,6 @@ public class MyClient {
 		try {
 			//cipherText = ki.getCiphertext(uid);
 			//System.out.println(cipherText);
-			
 			decryptCiphertext();
 		} catch (Exception e) {
 			System.out.println(e.getMessage());
@@ -78,48 +77,67 @@ public class MyClient {
 	
 	private void decryptCiphertext() {
 		int shuffleDistance = secretKey.mod(BigInteger.valueOf(8)).intValue();
-		System.out.println("The shuffle distance is: " + shuffleDistance);
-		cipherText = "ABCDEFGH";
 		
-		List<String> chunks = new ArrayList<String>();
+		List<char[]> chunks = new ArrayList<char[]>();
 		
 		int i = 0;
 		while (i < cipherText.length()) {
-			chunks.add(cipherText.substring(i, Math.min(i + 8, cipherText.length())));
+			char[] chunk = cipherText.substring(i, Math.min(i + 8, cipherText.length())).toCharArray();
+			chunks.add(chunk);
 			i += 8;
 		}
 		
-		// DE SUBSTITUTE HERE
-		
-		for (int j = 0; j < chunks.size(); j++) {
-			char[] characters = chunks.get(j).toCharArray();
+		for (int j = 0; j < chunks.size(); j++) {	
+			char[] current = chunks.get(j);
 			
-			String newString = deTranspose(characters, shuffleDistance);
-			chunks.set(j, newString);
+			deSubstitute(current);
+			deTranspose(current, shuffleDistance);
+			deTranspose(current, shuffleDistance);
 		}
 		
 		for (int j = 0; j < chunks.size(); j++) {
-			char[] characters = chunks.get(j).toCharArray();
+			char[] current = chunks.get(j);
 			
-			String newString = deTranspose(characters, shuffleDistance);
-			chunks.set(j, newString);
+			for (int k = 0; k < 8; k++) {
+				System.out.print(current[k]);
+			}
+			
+			System.out.println();
 		}
 	}
 	
-	private String deTranspose(char[] characters, int distance) {
+	private void deTranspose(char[] characters, int distance) {
 		char[] temp = new char[characters.length];
 		
 		System.arraycopy(characters, distance, temp, 0, characters.length - distance);
-	    System.arraycopy(characters, 0, temp, characters.length - distance, distance);		
+	    System.arraycopy(characters, 0, temp, characters.length - distance, distance);
 	    
-	    for (int i = 0; i < 8; i++) {
-	    	System.out.print(temp[i]);
-	    }
-	    
-	    return String.valueOf(temp);
+	    System.arraycopy(temp, 0, characters, 0, characters.length);
 	}
 	
-	private void deSubstitute(String text) {
+	private void deSubstitute(char[] characters) {
+		int distance = secretKey.mod(BigInteger.valueOf(26)).intValue();
 		
+		for (int i = 0; i < characters.length; i++) {
+			char current = characters[i];
+			
+			if (current >= 'a' && current <= 'z') {
+				current = (char) (current - distance);
+				
+				if (current <'a') {
+					current = (char) (current + 'z' - 'a' + 1);
+				}
+				
+				characters[i] = current;
+			} else if (current >= 'A' && current <= 'Z') {
+				current = (char) (current - distance);
+				
+				if (current <'A') {
+					current = (char) (current + 'Z' - 'A' + 1);
+				}
+				
+				characters[i] = current;
+			}
+		}
 	}
 }

@@ -34,9 +34,9 @@ public class MyClient {
 		establishSecureConnection();
 		
 		try {
-			//cipherText = ki.getCiphertext(uid);
-			//System.out.println(cipherText);
-			decryptCiphertext();
+			cipherText = ki.getCiphertext(uid);
+			System.out.println(cipherText);
+			//decryptCiphertext();
 		} catch (Exception e) {
 			System.out.println(e.getMessage());
 		}

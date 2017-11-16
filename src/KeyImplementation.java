@@ -9,6 +9,8 @@ public class KeyImplementation implements KeyInterface {
 	private static final BigInteger p = BigInteger.valueOf(191);
 	private static final BigInteger g = BigInteger.valueOf(131);
 	
+	private static Registry reg;
+	
 	private int a;
 	
 	private BigInteger secretKey;
@@ -55,13 +57,13 @@ public class KeyImplementation implements KeyInterface {
 				System.setSecurityManager(new SecurityManager());
 			}
 			
-			Registry reg = LocateRegistry.getRegistry("svm-tjn1f15-comp2207.ecs.soton.ac.uk");
-			CiphertextInterface ci = (CiphertextInterface) reg.lookup("CypherRequest");
+			reg = LocateRegistry.getRegistry("svm-tjn1f15-comp2207.ecs.soton.ac.uk");
+			CiphertextInterface ci = (CiphertextInterface) reg.lookup("CipherRequest");
 			
 			String text = ci.get(uid, secretKey.intValue());
 			return text;
 		} catch (Exception e) {
-			System.err.println(e.getMessage());
+			e.printStackTrace();
 		}
 		
 		return null;

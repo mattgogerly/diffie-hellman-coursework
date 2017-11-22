@@ -8,10 +8,9 @@ public interface KeyInterface extends Remote {
 	public BigInteger getP() throws RemoteException;
 	public BigInteger getG() throws RemoteException;
 	
-	public BigInteger calculateX() throws RemoteException;
-	public BigInteger calculateKey(BigInteger y) throws RemoteException;
-	public boolean checkSameSecret(BigInteger key) throws RemoteException;
+	public void calculateKey(ClientInterface client) throws RemoteException;
+	public boolean checkSameSecret(ClientInterface client, int key) throws RemoteException;
 	
-	public String getCiphertext(String uid) throws RemoteException;
+	public void getCiphertext(ClientInterface client, String uid) throws RemoteException;
 	
 }

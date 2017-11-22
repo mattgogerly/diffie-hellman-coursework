@@ -81,15 +81,15 @@ public class KeyImplementation implements KeyInterface {
 			System.out.println(text);
 			System.out.println();
 			
-			client.setCiphertext(text);
-			callbackToClient(client);
+			callbackToClient(client, text);
 		} catch (Exception e) {
 			e.printStackTrace();
 		}
 	}
 	
-	private void callbackToClient(ClientInterface client) {
+	private void callbackToClient(ClientInterface client, String text) {
 		try {
+			client.setCiphertext(text);
 			client.decryptCiphertext();
 		} catch (Exception e) {
 			e.printStackTrace();

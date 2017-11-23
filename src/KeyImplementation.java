@@ -32,7 +32,7 @@ public class KeyImplementation implements KeyInterface {
 		return g;
 	}
 
-	public synchronized void calculateKey(ClientInterface client) throws RemoteException {
+	public synchronized void calculateKey(ClientInterface client) throws RemoteException, Exception {
 		Random rand = new Random();
 		a = rand.nextInt(20) + 1;
 		
@@ -41,7 +41,9 @@ public class KeyImplementation implements KeyInterface {
 		client.setP(p);
 		client.setG(g);
 		
-		client.calculateKey();
+		if (!client.calculateKey()) {
+			throw new Exception("Error calculating key, aborting...");
+		}
 		
 		y = client.getY();
 		
@@ -63,7 +65,7 @@ public class KeyImplementation implements KeyInterface {
 		}
 	}
 	
-	public void getCiphertext(ClientInterface client, String uid) {
+	public synchronized void getCiphertext(ClientInterface client, String uid) {
 		try {			
 			if (System.getSecurityManager() == null) {
 				System.setSecurityManager(new SecurityManager());

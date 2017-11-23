@@ -13,6 +13,8 @@ public class MyServer {
 			reg.rebind("Key", stub);
 		} catch (RemoteException e) {
 			System.err.println(e.getMessage());
+		} catch (Exception e) {
+			System.err.println(e.getMessage());
 		}
 	}
 	

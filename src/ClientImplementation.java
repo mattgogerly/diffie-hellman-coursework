@@ -21,6 +21,9 @@ public class ClientImplementation implements ClientInterface {
 	private BigInteger x;
 	private BigInteger y;
 	
+	private volatile boolean calculatingY = false;
+	private volatile boolean calculatingKey = false;
+	
 	// int to store the calculated secret key
 	private int secretKey;
 	
@@ -39,8 +42,11 @@ public class ClientImplementation implements ClientInterface {
 	 * 
 	 * This method is called by the server only once p, g and x have been set.
 	 */
-	public boolean calculateKey() {
+	public void calculateKey() {
 		try {		
+			calculatingKey = true;
+			calculatingY = true;
+			
 			// Generate a random number b
 			Random rand = new Random();
 			b = BigInteger.valueOf(rand.nextInt(20) + 1);
@@ -48,50 +54,53 @@ public class ClientImplementation implements ClientInterface {
 			// Calculate y (g^b % p) and set calculating back to false (so server can get)
 			y = g.modPow(b, p);
 			
+			calculatingY = false;
+			
 			// Calculate the secret key on the client side (x^b % p)
 			BigInteger tempKey = x.modPow(b, p);
 			secretKey = tempKey.intValue();
+			
+			calculatingKey = false;
 		} catch (Exception e) {
 			e.printStackTrace();
-			return false;
 		}
-		
-		return true;
 	}
 	
 	/**
-	 * Method to set X value.
+	 * Method to set x, p and g values.
 	 * 
 	 * @param x: the value for x calculated by the remote server.
+	 * @param p: value of p provided by the server ("large" prime)
+	 * @param g: value of g provided by server (primitive root of p)
 	 */
-	public void setX(BigInteger x) {
+	public void setVars(BigInteger x, BigInteger p, BigInteger g) {
 		this.x = x;
-	}
-	
-	/**
-	 * Method to set p value.
-	 * 
-	 * @param p: the value for p provided by the remote server.
-	 */
-	public void setP(BigInteger p) {
 		this.p = p;
-	}
-	
-	/**
-	 * Method to set g value.
-	 * 
-	 * @param p: the value for g provided by the remote server.
-	 */
-	public void setG(BigInteger g) {
 		this.g = g;
 	}
 	
 	
 	public BigInteger getY() {		
+		while (calculatingY) {
+			try {
+				wait();
+			} catch (InterruptedException e) {
+				//
+			}
+		}
+		
 		return y;
 	}
 	
 	public int getSecretKey() {
+		while (calculatingKey) {
+			try {
+				wait();
+			} catch (InterruptedException e) {
+				//
+			}
+		}
+		
 		return secretKey;
 	}
 	

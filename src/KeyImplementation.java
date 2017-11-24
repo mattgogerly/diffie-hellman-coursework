@@ -37,13 +37,8 @@ public class KeyImplementation implements KeyInterface {
 		a = rand.nextInt(20) + 1;
 		
 		BigInteger x =  g.modPow(BigInteger.valueOf(a), p);
-		client.setX(x);
-		client.setP(p);
-		client.setG(g);
-		
-		if (!client.calculateKey()) {
-			throw new Exception("Error calculating key, aborting...");
-		}
+		client.setVars(x, p, g);
+		client.calculateKey();
 		
 		y = client.getY();
 		

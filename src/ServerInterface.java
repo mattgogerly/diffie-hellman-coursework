@@ -2,8 +2,11 @@ import java.math.BigInteger;
 import java.rmi.Remote;
 import java.rmi.RemoteException;
 
+/**
+ * An interface for the client to use to call methods on the server
+ */
 
-public interface KeyInterface extends Remote {
+public interface ServerInterface extends Remote {
 	
 	public BigInteger getP() throws RemoteException;
 	public BigInteger getG() throws RemoteException;

@@ -10,8 +10,6 @@ import java.util.Random;
  * 
  * @see ClientInterface
  * 
- * @author Matt Gogerly
- * @version 1.0
  */
 
 public class ClientImplementation implements ClientInterface {
@@ -27,7 +25,7 @@ public class ClientImplementation implements ClientInterface {
 	// int to store the calculated secret key
 	private int secretKey;
 	
-	// The ciphertext retreived from the server
+	// The ciphertext retrieved from the server
 	private String cipherText;
 	
 	/**
@@ -80,7 +78,17 @@ public class ClientImplementation implements ClientInterface {
 	}
 	
 	
-	public BigInteger getY() {		
+	/**
+	 * Method to return the Y value (but only once calculated)
+	 */
+	public BigInteger getY() {	
+		/*
+		 *  This needs to be thread safe - otherwise the server could get Y before 
+		 *  we have calculated it which would result in an error. We therefore
+		 *  force the requesting thread to wait until this client has set calculatingY
+		 *  to false, indicating the value is ready for getting.
+		 */
+		
 		while (calculatingY) {
 			try {
 				wait();
@@ -92,7 +100,17 @@ public class ClientImplementation implements ClientInterface {
 		return y;
 	}
 	
+	/**
+	 * Method to return the calculated secret key (only once calculated)
+	 */
 	public int getSecretKey() {
+		/*
+		 *  This needs to be thread safe - otherwise the server could try to get
+		 *  the key for comparison before we have calculated it which would result in 
+		 *  an error. We therefore force the requesting thread to wait until this client 
+		 *  has set calculatingKey to false, indicating the value is ready for getting.
+		 */
+		
 		while (calculatingKey) {
 			try {
 				wait();
@@ -104,15 +122,25 @@ public class ClientImplementation implements ClientInterface {
 		return secretKey;
 	}
 	
+	/**
+	 * Method to set the retrieved ciphertext and start decrypting it
+	 * 
+	 * @param cipherText: the ciphertext retrieved from the remote server
+	 */
 	public void setCiphertext(String cipherText) {
 		this.cipherText = cipherText;
+		
+		decryptCiphertext();
 	}
 	
-	public void decryptCiphertext() {
-		int shuffleDistance = secretKey % 8;
-		
+	/**
+	 * Method that handles decrypting the ciphertext
+	 */
+	public void decryptCiphertext() {		
+		// List to store each 8 character chunk
 		List<char[]> chunks = new ArrayList<char[]>();
 		
+		// Loop over the ciphertext and split it into 8 character chunks
 		int i = 0;
 		while (i < cipherText.length()) {
 			char[] chunk = cipherText.substring(i, Math.min(i + 8, cipherText.length())).toCharArray();
@@ -122,16 +150,19 @@ public class ClientImplementation implements ClientInterface {
 		
 		System.out.println();
 		
+		// For each chunk of 8 characters
 		for (int j = 0; j < chunks.size(); j++) {	
 			char[] current = chunks.get(j);
 			
+			// Do two rounds of desubstitution and then two rounds of detransposition
 			deSubstitute(current);
 			deSubstitute(current);
 			
-			deTranspose(current, shuffleDistance);					
-			deTranspose(current, shuffleDistance);
+			deTranspose(current);					
+			deTranspose(current);
 		}
 		
+		// Print the decrypted chunks
 		for (int j = 0; j < chunks.size(); j++) {
 			char[] current = chunks.get(j);
 			
@@ -141,33 +172,45 @@ public class ClientImplementation implements ClientInterface {
 		}
 	}
 	
-	private void deTranspose(char[] characters, int distance) {
+	/**
+	 * Method to detranspose a chunk of characters
+	 * 
+	 * @param characters: the array of characters to be detransposed
+	 * @param distance: the distance to the left each character should move
+	 */
+	private void deTranspose(char[] characters) {
+		// Calculate the distance to shuffle each letter by
+		int shuffleDistance = secretKey % 8;
+		
+		// Create a temp helper array
 		char[] temp = new char[characters.length];
 		
-		System.arraycopy(characters, distance, temp, 0, characters.length - distance);
-	    System.arraycopy(characters, 0, temp, characters.length - distance, distance);
-	    
+		// Copy the original array to the temp array
+		System.arraycopy(characters, shuffleDistance, temp, 0, characters.length - shuffleDistance);
+		
+		// Copy the characters back into their detransposed positions
+	    System.arraycopy(characters, 0, temp, characters.length - shuffleDistance, shuffleDistance);
 	    System.arraycopy(temp, 0, characters, 0, characters.length);
 	}
 	
+	/**
+	 * Method to desubstitute each character (reverse Caesar cipher)
+	 * 
+	 * @param characters: the array of characters to be desubstituted
+	 */
 	private void deSubstitute(char[] characters) {
+		// Calculate the distance each character needs to be shifted
 		int distance = secretKey % 26;
 		
 		for (int i = 0; i < characters.length; i++) {
 			char current = characters[i];
 			
-			if (current >= 'a' && current <= 'z') {
+			// Basic sanity checking - make sure the character we're desubstituting is in caps between A and Z
+			if (current >= 'A' && current <= 'Z') {
+				// Perform Caeser shift to the left by distance
 				current = (char) (current - distance);
 				
-				if (current <'a') {
-					current = (char) (current + 'z' - 'a' + 1);
-				}
-				
-				characters[i] = current;
-			} else if (current >= 'A' && current <= 'Z') {
-				current = (char) (current - distance);
-				
-				if (current <'A') {
+				if (current < 'A') {
 					current = (char) (current + 'Z' - 'A' + 1);
 				}
 				

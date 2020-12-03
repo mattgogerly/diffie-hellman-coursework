@@ -13,9 +13,10 @@ import java.util.Random;
  */
 
 public class ClientImplementation implements ClientInterface {
-	
+
 	// BigIntegers to store values calculated during the calculating of the secret key
-	private BigInteger b, p, g;
+	private BigInteger p;
+	private BigInteger g;
 	private BigInteger x;
 	private BigInteger y;
 	
@@ -47,7 +48,8 @@ public class ClientImplementation implements ClientInterface {
 			
 			// Generate a random number b
 			Random rand = new Random();
-			b = BigInteger.valueOf(rand.nextInt(20) + 1);
+
+			BigInteger b = BigInteger.valueOf(rand.nextInt(20) + 1);
 			
 			// Calculate y (g^b % p) and set calculating back to false (so server can get)
 			y = g.modPow(b, p);
@@ -138,7 +140,7 @@ public class ClientImplementation implements ClientInterface {
 	 */
 	public void decryptCiphertext() {		
 		// List to store each 8 character chunk
-		List<char[]> chunks = new ArrayList<char[]>();
+		List<char[]> chunks = new ArrayList<>();
 		
 		// Loop over the ciphertext and split it into 8 character chunks
 		int i = 0;
@@ -151,21 +153,17 @@ public class ClientImplementation implements ClientInterface {
 		System.out.println();
 		
 		// For each chunk of 8 characters
-		for (int j = 0; j < chunks.size(); j++) {	
-			char[] current = chunks.get(j);
-			
+		for (char[] current : chunks) {
 			// Do two rounds of desubstitution and then two rounds of detransposition
 			deSubstitute(current);
 			deSubstitute(current);
-			
-			deTranspose(current);					
+
+			deTranspose(current);
 			deTranspose(current);
 		}
 		
 		// Print the decrypted chunks
-		for (int j = 0; j < chunks.size(); j++) {
-			char[] current = chunks.get(j);
-			
+		for (char[] current : chunks) {
 			for (int k = 0; k < 8; k++) {
 				System.out.print(current[k]);
 			}
@@ -176,7 +174,6 @@ public class ClientImplementation implements ClientInterface {
 	 * Method to detranspose a chunk of characters
 	 * 
 	 * @param characters: the array of characters to be detransposed
-	 * @param distance: the distance to the left each character should move
 	 */
 	private void deTranspose(char[] characters) {
 		// Calculate the distance to shuffle each letter by

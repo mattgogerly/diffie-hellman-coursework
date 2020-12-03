@@ -8,12 +8,11 @@ import java.rmi.RemoteException;
 
 public interface ServerInterface extends Remote {
 	
-	public BigInteger getP() throws RemoteException;
-	public BigInteger getG() throws RemoteException;
+	BigInteger getP() throws RemoteException;
+	BigInteger getG() throws RemoteException;
 	
-	public void calculateKey(ClientInterface client) throws RemoteException, Exception;
-	public boolean checkSameSecret(ClientInterface client, int key) throws RemoteException;
-	
-	public void getCiphertext(ClientInterface client, String uid) throws RemoteException;
+	void calculateKey(ClientInterface client) throws RemoteException, Exception;
+
+	void getCiphertext(ClientInterface client, String uid) throws RemoteException;
 	
 }

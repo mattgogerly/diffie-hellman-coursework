@@ -17,21 +17,14 @@ public class ServerImplementation implements ServerInterface {
 	// Set our p and g values as specified in the spec
 	private static final BigInteger p = BigInteger.valueOf(191);
 	private static final BigInteger g = BigInteger.valueOf(131);
-	
-	// We're using a static Registry so that the JVM garbage collector doesn't delete it whilst we need it
-	private static Registry reg;
-	
-	// Values that will be calculated when a client requests a connection
-	private int a;
-	private BigInteger y;
-	
+
 	/**
 	 *  A Hashtable containing clients and their keys so they can be used later.
 	 *  We use a Hashtable because it is synchronised, unlike a HashMap. This prevents
 	 *  the potential conflict of a client's key being changed whilst another thread
 	 *  is trying to get the key.
 	 */
-	private Hashtable<ClientInterface, Integer> secretKeys;
+	private final Hashtable<ClientInterface, Integer> secretKeys;
 	
 	/**
 	 * Constructor to create a new ServerImplementation. We set the security policy
@@ -42,7 +35,7 @@ public class ServerImplementation implements ServerInterface {
 		System.setProperty("java.rmi.server.codebase", "http://users.ecs.soton.ac.uk/tjn1f15/comp2207.jar");
 		
 		// Initialise the Hashtable
-		secretKeys = new Hashtable<ClientInterface, Integer>();
+		secretKeys = new Hashtable<>();
 	}
 	
 	/**
@@ -65,10 +58,11 @@ public class ServerImplementation implements ServerInterface {
 	 * these values could potentially change halfway through each calculation, resulting in one or all
 	 * of the clients being unable to calculate the same key, thus preventing a connection.
 	 */
-	public synchronized void calculateKey(ClientInterface client) throws RemoteException, Exception {
+	public synchronized void calculateKey(ClientInterface client) throws RemoteException {
 		// Generate a random a value for this client
 		Random rand = new Random();
-		a = rand.nextInt(20) + 1;
+		// Values that will be calculated when a client requests a connection
+		int a = rand.nextInt(20) + 1;
 		
 		// Calculate x (g^a % p)
 		BigInteger x =  g.modPow(BigInteger.valueOf(a), p);
@@ -78,7 +72,7 @@ public class ServerImplementation implements ServerInterface {
 		client.calculateKey();
 		
 		// Get the y value from the client (note the server thread may be forced to wait here if the client is very slow)
-		y = client.getY();
+		BigInteger y = client.getY();
 		
 		// Calculate the secret key (y^a % p)
 		BigInteger temp = y.modPow(BigInteger.valueOf(a), p);
@@ -88,27 +82,6 @@ public class ServerImplementation implements ServerInterface {
 		
 		// Store the client alongside its key
 		secretKeys.put(client, secretKey);
-	}
-
-	/**
-	 * Method to check the key calculated by the client is equal to the one calculated
-	 * by the server.
-	 * 
-	 * @param: client: the ClientInterface we're trying to connect to
-	 * @param: key: the key this client calculated
-	 */
-	public boolean checkSameSecret(ClientInterface client, int key) throws RemoteException {
-		// If the key we have for that client is the same we have a connection
-		if (secretKeys.get(client) == key) {
-			System.out.println("Secure connection to client established!");
-			System.out.println();
-			return true;
-		} else {
-			//  Otherwise something went wrong
-			System.out.println("Secure connection to client failed!");
-			System.out.println();
-			return false;
-		}
 	}
 	
 	/**
@@ -125,7 +98,8 @@ public class ServerImplementation implements ServerInterface {
 			}
 			
 			// Locate the registry on the provided remote server
-			reg = LocateRegistry.getRegistry("svm-tjn1f15-comp2207.ecs.soton.ac.uk", 12345);
+			Registry reg = LocateRegistry.getRegistry("svm-tjn1f15-comp2207.ecs.soton.ac.uk", 12345);
+
 			// Get the interface for the name we were given
 			CiphertextInterface ci = (CiphertextInterface) reg.lookup("CiphertextProvider");
 			
